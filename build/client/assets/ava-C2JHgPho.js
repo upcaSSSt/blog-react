@@ -1,0 +1,1 @@
+import{o as a}from"./chunk-D4RADZKF-F8gbsHt2.js";function i({figureClass:s,id:r}){return a.jsx("figure",{className:s,children:a.jsx("img",{className:"ava__img",src:`/${r}.webp`,alt:"Ava"})})}export{i as A};

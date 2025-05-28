@@ -1,0 +1,1 @@
+import{o as s,L as e}from"./chunk-D4RADZKF-F8gbsHt2.js";import{A as o}from"./ava-C2JHgPho.js";function n({id:r,name:a}){return s.jsxs(e,{className:"user-card row",to:`/users/${r}`,children:[s.jsx(o,{figureClass:"user-card__ava",id:r}),s.jsx("h3",{className:"user-card__name",children:a})]})}export{n as C};
