@@ -11,7 +11,7 @@ export default function Form({ url, method, body = '' }: { url: string, method: 
     const fd = new FormData();
     fd.append('body', bodyRef.current.value);
     for (const file of imgs.current.files)
-      fd.append('images[]', file)
+      fd.append('images[]', file);
 
     await fetch(`http://localhost:3000/api/v1/${url}`, {
       method,

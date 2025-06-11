@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
 import { useEffect, useContext, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import CurUserContext from '../context';
+import { CurUserContext } from '../global';
 import Post from '../post';
 
 export function meta({}: Route.MetaArgs) {
@@ -33,7 +33,7 @@ export default function Home() {
     <section className="section">
       <div className="row">
         { curUser.name && <Link className="btn" to="/new">Пост</Link> }
-        <input className="input" placeholder="Поиск постов..." ref={search} onChange={searchPosts} />
+        <input className="input input_small" placeholder="Поиск постов..." ref={search} onChange={searchPosts} />
       </div>
 
       {posts ? posts.map(p => <Post post={p} key={p.id} />) : <p>Загрузка...</p>}

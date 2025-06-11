@@ -9,7 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import { useState } from 'react';
-import CurUserContext from './context';
+import { CurUserContext } from './global';
 import Header from './header';
 import Footer from './footer';
 import "./app.css";

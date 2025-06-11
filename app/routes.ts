@@ -9,4 +9,5 @@ export default [
   route('edit/:id', 'routes/edit.tsx'),
   route('users', 'routes/users.tsx'),
   route('users/:id', 'routes/user.tsx'),
+  route('chats', 'routes/chats.tsx'),
 ] satisfies RouteConfig;

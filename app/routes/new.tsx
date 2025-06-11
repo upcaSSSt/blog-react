@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import CurUserContext from '../context';
+import { CurUserContext } from '../global';
 import Form from '../form';
 
 export default function New() {

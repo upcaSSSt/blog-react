@@ -1,6 +1,6 @@
 import { useContext, useRef } from 'react';
 import { useNavigate, Link } from 'react-router';
-import CurUserContext from '../context';
+import { CurUserContext } from '../global';
 
 export default function Signup() {
   const { setCurUser } = useContext(CurUserContext);

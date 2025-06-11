@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
 import { useContext, useRef } from 'react';
 import { useNavigate, Link } from 'react-router';
-import CurUserContext from '../context';
+import { CurUserContext } from '../global';
 
 export function meta({}: Route.MetaArgs) {
   return [];

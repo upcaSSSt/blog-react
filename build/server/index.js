@@ -82,7 +82,8 @@ function Footer({ curUser }) {
   return /* @__PURE__ */ jsx("footer", { className: "footer", children: curUser.name && /* @__PURE__ */ jsxs("nav", { className: "footer__container row row_spaced", children: [
     /* @__PURE__ */ jsx(Link, { to: "/", children: "Посты" }),
     /* @__PURE__ */ jsx(Link, { to: `/users/${curUser.id}`, children: "Профиль" }),
-    /* @__PURE__ */ jsx(Link, { to: "/users", children: "Люди" })
+    /* @__PURE__ */ jsx(Link, { to: "/users", children: "Люди" }),
+    /* @__PURE__ */ jsx(Link, { to: "/chats", children: "Чаты" })
   ] }) });
 }
 const links = () => [{
@@ -214,7 +215,7 @@ const home = withComponentProps(function Home() {
         to: "/new",
         children: "Пост"
       }), /* @__PURE__ */ jsx("input", {
-        className: "input",
+        className: "input input_small",
         placeholder: "Поиск постов...",
         ref: search,
         onChange: searchPosts
@@ -589,11 +590,27 @@ const user = withComponentProps(function User() {
     setCurUser
   } = useContext(CurUserContext);
   const [user2, setUser] = useState({});
+  const [chatBtn, setChatBtn] = useState(null);
+  const chats2 = useRef([]);
   useEffect(() => {
     (async () => {
       const res = await fetch(`http://localhost:3000/api/v1/users/${id}`);
       const data = await res.json();
       setUser(data);
+      const resChats = await fetch(`http://localhost:3000/api/v1/users/${curUser.id}/chats`);
+      chats2.current = await resChats.json();
+      chats2.current.some((c) => {
+        console.log(!c.users.some((u) => {
+          console.log(u.id, id, u.id == id);
+          return u.id == id;
+        }));
+        return !c.name && !c.users.some((u) => u.id == id);
+      });
+      if (chats2.current.some((c) => !c.name && !c.users.some((u) => u.id == id))) setChatBtn(/* @__PURE__ */ jsx("button", {
+        className: "btn",
+        onClick: createChat,
+        children: "Чат"
+      }));
     })();
   }, []);
   async function follow(flag) {
@@ -601,29 +618,46 @@ const user = withComponentProps(function User() {
       method: "post"
     });
     const data = await res.json();
-    const clone = window.structuredClone(curUser);
-    clone.following_ids = data;
-    setCurUser(clone);
+    setCurUser({
+      ...curUser,
+      following_ids: data
+    });
     navigate("/");
+  }
+  async function createChat() {
+    setChatBtn(null);
+    await fetch(`http://localhost:3000/api/v1/users/${curUser.id}/chats`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: null,
+        users_ids: [+id]
+      })
+    });
   }
   return /* @__PURE__ */ jsxs("section", {
     className: "section",
     children: [/* @__PURE__ */ jsx(Card, {
       id,
       name: user2.name
-    }), curUser.name && (curUser.id == id && /* @__PURE__ */ jsx(Link, {
-      className: "btn",
-      to: "/new",
-      children: "Пост"
-    }) || curUser.following_ids.includes(+id) && /* @__PURE__ */ jsx("button", {
-      className: "btn btn_red",
-      onClick: () => follow(false),
-      children: "Отписаться"
-    }) || /* @__PURE__ */ jsx("button", {
-      className: "btn",
-      onClick: () => follow(true),
-      children: "Подписаться"
-    })), (_a = user2.posts) == null ? void 0 : _a.map((p) => /* @__PURE__ */ jsx(Post, {
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "row",
+      children: [curUser.name && (curUser.id == id && /* @__PURE__ */ jsx(Link, {
+        className: "btn",
+        to: "/new",
+        children: "Пост"
+      }) || curUser.following_ids.includes(+id) && /* @__PURE__ */ jsx("button", {
+        className: "btn btn_red",
+        onClick: () => follow(false),
+        children: "Отписаться"
+      }) || /* @__PURE__ */ jsx("button", {
+        className: "btn",
+        onClick: () => follow(true),
+        children: "Подписаться"
+      })), chatBtn]
+    }), (_a = user2.posts) == null ? void 0 : _a.map((p) => /* @__PURE__ */ jsx(Post, {
       post: p
     }, p.id))]
   });
@@ -632,7 +666,174 @@ const route8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: user
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-CyDsO4bS.js", "imports": ["/assets/chunk-D4RADZKF-F8gbsHt2.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-C_c9QYj3.js", "imports": ["/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/with-props-BITBR5i4.js", "/assets/context-DqGd4opN.js", "/assets/ava-C2JHgPho.js"], "css": ["/assets/root-BIQjy6vq.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-DvTKZf28.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/context-DqGd4opN.js", "/assets/post-tiVzxYm2.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/login": { "id": "routes/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-ByXJqtsZ.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/context-DqGd4opN.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/signup": { "id": "routes/signup", "parentId": "root", "path": "signup", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/signup-DxXrTYXk.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/context-DqGd4opN.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/post-view": { "id": "routes/post-view", "parentId": "root", "path": "posts/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/post-view-BFj4wE4z.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/context-DqGd4opN.js", "/assets/post-tiVzxYm2.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/new": { "id": "routes/new", "parentId": "root", "path": "new", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/new-GQfR5VUY.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/context-DqGd4opN.js", "/assets/form-B96bbkt8.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/edit": { "id": "routes/edit", "parentId": "root", "path": "edit/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/edit-DMgIaXlo.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/context-DqGd4opN.js", "/assets/form-B96bbkt8.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/users": { "id": "routes/users", "parentId": "root", "path": "users", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/users-Bida3_1-.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/card-CeJAm_5I.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/user": { "id": "routes/user", "parentId": "root", "path": "users/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/user-CXUEue8E.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/context-DqGd4opN.js", "/assets/card-CeJAm_5I.js", "/assets/post-tiVzxYm2.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-fb859968.js", "version": "fb859968", "sri": void 0 };
+function Chat({ id, name, last, nUnread, click }) {
+  return /* @__PURE__ */ jsxs("div", { className: "chat row", onClick: click, children: [
+    /* @__PURE__ */ jsx(Ava, { id, figureClass: "chat__ava" }),
+    /* @__PURE__ */ jsxs("h3", { className: "chat__name", children: [
+      name,
+      nUnread > 0 && /* @__PURE__ */ jsx("p", { className: "chat__unread", children: nUnread }),
+      /* @__PURE__ */ jsx("p", { className: "chat__text", children: last })
+    ] })
+  ] });
+}
+function Msg({ id, name, body }) {
+  return /* @__PURE__ */ jsxs("div", { className: "msg", children: [
+    /* @__PURE__ */ jsx(Ava, { id, figureClass: "ava" }),
+    /* @__PURE__ */ jsx("h3", { children: name }),
+    /* @__PURE__ */ jsx("p", { children: body })
+  ] });
+}
+function Dialog({ clickedChatIndex, chats: chats2, setChats, msgs }) {
+  var _a;
+  const { curUser } = useContext(CurUserContext);
+  const [users2, setUsers] = useState([]);
+  const newMsg = useRef(null);
+  useEffect(() => {
+    (async () => {
+      const res = await fetch("http://localhost:3000/api/v1/users");
+      const data = await res.json();
+      setUsers(data);
+    })();
+  }, []);
+  async function send(e) {
+    e.preventDefault();
+    await fetch(`http://localhost:3000/api/v1/users/${curUser.id}/chats/${chats2[clickedChatIndex.current].id}`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ body: newMsg.current.value })
+    });
+    newMsg.current.value = "";
+  }
+  async function editUsers(e) {
+    await fetch(`http://localhost:3000/api/v1/chats/${chats2[clickedChatIndex.current].id}`, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ user_id: users2[e.target.value].id })
+    });
+    const clone = window.structuredClone(chats2);
+    clone[clickedChatIndex.current].users.push({ id: users2[e.target.value].id, name: users2[e.target.value].name });
+    setChats(clone);
+  }
+  return /* @__PURE__ */ jsxs("div", { className: "chats__dialog dialog", children: [
+    chats2[clickedChatIndex.current] && /* @__PURE__ */ jsxs("div", { className: "dialog__header row", children: [
+      /* @__PURE__ */ jsxs("select", { className: "dialog__users", defaultValue: "default", children: [
+        /* @__PURE__ */ jsx("option", { value: "default", disabled: true, hidden: true, children: "Список пользователей" }),
+        (_a = chats2[clickedChatIndex.current]) == null ? void 0 : _a.users.map((u, i) => /* @__PURE__ */ jsx("option", { disabled: true, children: u.name }, i))
+      ] }),
+      chats2[clickedChatIndex.current].name && /* @__PURE__ */ jsxs("select", { defaultValue: "default", onChange: editUsers, children: [
+        /* @__PURE__ */ jsx("option", { value: "default", disabled: true, hidden: true, children: "Добавить пользователя" }),
+        users2 == null ? void 0 : users2.map((u, i) => /* @__PURE__ */ jsx("option", { value: i, children: u.name }, u.id))
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx("div", { className: "dialog__msgs", children: msgs == null ? void 0 : msgs.map((m) => /* @__PURE__ */ jsx(Msg, { id: m.user_id, name: m.name, body: m.body }, m.id)) }),
+    chats2[clickedChatIndex.current] && /* @__PURE__ */ jsxs("form", { className: "dialog__form row", onSubmit: send, children: [
+      /* @__PURE__ */ jsx("input", { ref: newMsg, type: "text", placeholder: "Сообщение..." }),
+      /* @__PURE__ */ jsx("button", { type: "submit", className: "btn", children: "Отправить" })
+    ] })
+  ] });
+}
+const socket = new WebSocket("ws://localhost:3000/cable");
+const chats = withComponentProps(function Chats() {
+  const {
+    curUser
+  } = useContext(CurUserContext);
+  const [chats2, setChats] = useState([]);
+  const [msgs, setMsgs] = useState([]);
+  const confName = useRef(null);
+  const confAva = useRef(null);
+  const clickedChatIndex = useRef(null);
+  socket.onopen = (e) => {
+    socket.send(JSON.stringify({
+      command: "subscribe",
+      identifier: JSON.stringify({
+        id: curUser.id,
+        channel: "ChatsChannel"
+      })
+    }));
+  };
+  socket.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    console.log(data);
+    if (typeof data.message === "object" && data.message.chat_id === chats2[clickedChatIndex.current].id) setMsgs(window.structuredClone(msgs).concat(data.message));
+  };
+  useEffect(() => {
+    (async () => {
+      const res = await fetch(`http://localhost:3000/api/v1/users/${curUser.id}/chats`);
+      const data = await res.json();
+      setChats(data);
+    })();
+  }, []);
+  function fetchMsgs(chatId, i) {
+    const clone = window.structuredClone(chats2);
+    clone[i].n_unread = 0;
+    setChats(clone);
+    clickedChatIndex.current = i;
+    fetch(`http://localhost:3000/api/v1/chats/${chatId}`).then((res) => res.json()).then((data) => setMsgs(data));
+  }
+  async function createConf(e) {
+    e.preventDefault();
+    const fd = new FormData();
+    fd.append("name", confName.current.value);
+    fd.append("users_ids", []);
+    fd.append("images[]", confAva.current.files[0]);
+    const res = await fetch(`http://localhost:3000/api/v1/users/${curUser.id}/chats`, {
+      method: "post",
+      body: fd
+    });
+    confName.current.value = "";
+    const data = await res.json();
+    console.log(data);
+    setChats(window.structuredClone(chats2).concat(data));
+  }
+  function chatName(chat) {
+    if (chat.name) return chat.name;
+    else return chat.users[0].id === curUser.id ? chat.users[1].name : chat.users[0].name;
+  }
+  return /* @__PURE__ */ jsxs("section", {
+    className: "chats row",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "chats__list",
+      children: [/* @__PURE__ */ jsxs("form", {
+        className: "chats__conf chat",
+        onSubmit: createConf,
+        children: [/* @__PURE__ */ jsx("input", {
+          className: "input",
+          type: "text",
+          placeholder: "Название",
+          ref: confName
+        }), /* @__PURE__ */ jsx("input", {
+          type: "file",
+          accept: "image/*",
+          ref: confAva
+        }), /* @__PURE__ */ jsx("button", {
+          className: "btn",
+          children: "Создать беседу"
+        })]
+      }), chats2 == null ? void 0 : chats2.map((c, i) => /* @__PURE__ */ jsx(Chat, {
+        id: 1,
+        name: chatName(c),
+        last: c.last,
+        nUnread: c.n_unread,
+        click: () => fetchMsgs(c.id, i)
+      }, c.id))]
+    }), /* @__PURE__ */ jsx(Dialog, {
+      clickedChatIndex,
+      chats: chats2,
+      setChats,
+      msgs
+    })]
+  });
+});
+const route9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: chats,
+  socket
+}, Symbol.toStringTag, { value: "Module" }));
+const serverManifest = { "entry": { "module": "/assets/entry.client-CyDsO4bS.js", "imports": ["/assets/chunk-D4RADZKF-F8gbsHt2.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-CJWZG0PX.js", "imports": ["/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/with-props-BITBR5i4.js", "/assets/global-DqGd4opN.js", "/assets/ava-C2JHgPho.js"], "css": ["/assets/root-Da0asRAK.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-DqH-c6mI.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/global-DqGd4opN.js", "/assets/post-tiVzxYm2.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/login": { "id": "routes/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-BUWWU2_w.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/global-DqGd4opN.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/signup": { "id": "routes/signup", "parentId": "root", "path": "signup", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/signup-CwQQH5e0.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/global-DqGd4opN.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/post-view": { "id": "routes/post-view", "parentId": "root", "path": "posts/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/post-view-DzHNHPx0.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/global-DqGd4opN.js", "/assets/post-tiVzxYm2.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/new": { "id": "routes/new", "parentId": "root", "path": "new", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/new-bb-2z9zb.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/global-DqGd4opN.js", "/assets/form-B96bbkt8.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/edit": { "id": "routes/edit", "parentId": "root", "path": "edit/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/edit-CQgiKDRk.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/global-DqGd4opN.js", "/assets/form-B96bbkt8.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/users": { "id": "routes/users", "parentId": "root", "path": "users", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/users-Bida3_1-.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/card-CeJAm_5I.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/user": { "id": "routes/user", "parentId": "root", "path": "users/:id", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/user-DF7NROxf.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/global-DqGd4opN.js", "/assets/card-CeJAm_5I.js", "/assets/post-tiVzxYm2.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/chats": { "id": "routes/chats", "parentId": "root", "path": "chats", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/chats-DdQLgnUd.js", "imports": ["/assets/with-props-BITBR5i4.js", "/assets/chunk-D4RADZKF-F8gbsHt2.js", "/assets/global-DqGd4opN.js", "/assets/ava-C2JHgPho.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-c97c746a.js", "version": "c97c746a", "sri": void 0 };
 const assetsBuildDirectory = "build/client";
 const basename = "/";
 const future = { "unstable_middleware": false, "unstable_optimizeDeps": false, "unstable_splitRouteModules": false, "unstable_subResourceIntegrity": false, "unstable_viteEnvironmentApi": false };
@@ -714,6 +915,14 @@ const routes = {
     index: void 0,
     caseSensitive: void 0,
     module: route8
+  },
+  "routes/chats": {
+    id: "routes/chats",
+    parentId: "root",
+    path: "chats",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route9
   }
 };
 export {

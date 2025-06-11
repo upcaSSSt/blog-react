@@ -1,7 +1,7 @@
 import type { Route } from "./+types/home";
 import { useEffect, useContext, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router';
-import CurUserContext from '../context';
+import { CurUserContext } from '../global';
 import Post from "../post";
 import Autor from '../autor';
 

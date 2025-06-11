@@ -1,6 +1,6 @@
 import { useEffect, useContext, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
-import CurUserContext from '../context';
+import { CurUserContext } from '../global';
 import Form from '../form';
 
 export default function Edit() {
